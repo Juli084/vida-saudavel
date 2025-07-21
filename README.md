@@ -1,12 +1,23 @@
-# React + Vite
+# Vida Saudável - App de Nutrição Inteligente
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+O **Vida Saudável** é um aplicativo web inteligente voltado para promover uma alimentação equilibrada, hábitos saudáveis e bem-estar no dia a dia. Utilizando tecnologias modernas, o app oferecerá:
 
-Currently, two official plugins are available:
+- Sugestões de receitas saudáveis com base em preferências e restrições alimentares.
+- Lembretes e organização de refeições com base em princípios nutricionais.
+- Consulta de alimentos com benefícios, propriedades, contra-indicações.
+- Suporte multilíngue (Português e Inglês).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 📌 Tecnologias que serão utilizadas
+
+- **React** – biblioteca principal para construção da interface.
+- **TypeScript** – segurança e organização no desenvolvimento.
+- **TailwindCSS** – estilização rápida, responsiva e moderna.
+- **React Router DOM** – gerenciamento de rotas.
+- **i18next** – suporte multilíngue (PT/EN).
+- **React Hook Form / Zod** – para validações de entrada de dados.
+- **IndexedDB ou LocalStorage** – para armazenar preferências do usuário.
+- **Axios** – para consumo de APIs externas.
+- **Vite** – como bundler para performance no desenvolvimento.
