@@ -3,6 +3,7 @@ import './index.css'
 import Navbar from './components/Navbar'
 import HomeHero from './components/HomeHero';
 import RecipeSection from './components/RecipeSection';
+import TipsSection from './components/TipsSection';
 
 function App() {
   
@@ -12,6 +13,7 @@ function App() {
       <Navbar/>
       <HomeHero />
       <RecipeSection />
+      <TipsSection />
     </>
   )
 }

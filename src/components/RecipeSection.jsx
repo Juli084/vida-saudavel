@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 const API_KEY = import.meta.env.VITE_SPOONACULAR_API_KEY;
