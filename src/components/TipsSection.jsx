@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { Apple,
+import { useState } from "react";
+import {
+  Apple,
   Smartphone,
   Carrot,
   Droplet,
@@ -17,8 +18,8 @@ import { Apple,
   Soup,
   FlaskConical,
   GlassWater,
-  Smile, } 
-from "lucide-react"; 
+  Smile,
+} from "lucide-react"; 
 
 const allTips = [
   {
@@ -146,18 +147,14 @@ function shuffleArray(array) {
 }
 
 export default function TipsSection() {
-  const [tips, setTips] = useState([]);
+  const [tips] = useState(() => shuffleArray(allTips));
   const [showAll, setShowAll] = useState(false);
 
-  useEffect(() => {
-    const shuffled = shuffleArray(allTips);
-    setTips(shuffled);
-  }, []);
 
   const visibleTips = showAll ? tips : tips.slice(0, 3);
 
   return (
-    <section className="bg-white py-16 px-6">
+    <section id="dicas" className="bg-white py-16 px-6 scroll-mt-20">
       <div className="max-w-5xl mx-auto text-center">
         <h2 className="text-3xl font-bold text-green-800 mb-10">
           Dicas Nutricionais para uma Vida Saudável
@@ -177,6 +174,7 @@ export default function TipsSection() {
         </div>
 
         <button
+          type="button"
           onClick={() => setShowAll(!showAll)}
           className="mt-12 px-8 py-3 bg-green-600 text-white rounded-full font-semibold hover:bg-green-700 transition"
         >
