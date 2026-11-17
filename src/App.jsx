@@ -1,21 +1,17 @@
-import { useState } from 'react'
-import './index.css'
-import Navbar from './components/Navbar'
+import Navbar from './components/Navbar';
 import HomeHero from './components/HomeHero';
 import RecipeSection from './components/RecipeSection';
 import TipsSection from './components/TipsSection';
 
-function App() {
-  
-
+export default function App() {
   return (
     <>
-      <Navbar/>
-      <HomeHero />
-      <RecipeSection />
-      <TipsSection />
+      <Navbar />
+      <main>
+        <HomeHero />
+        <RecipeSection />
+        <TipsSection />
+      </main>
     </>
-  )
+  );
 }
-
-export default App
