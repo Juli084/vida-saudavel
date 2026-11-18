@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --color-fundo: #f4f7f2;
+  --color-cartao: #ffffff;
+  --color-tinta: #17211b;
+  --color-suave: #5d6b62;
+  --color-linha: #dde5dc;
+  --color-folha: #2f7a4b;
+  --color-folha-escura: #1f5534;
+  --color-folha-clara: #e3f1e7;
+  --color-alerta: #b54708;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 4.5rem;
+}
+
+body {
+  background: var(--color-fundo);
+  color: var(--color-tinta);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-folha);
+  outline-offset: 2px;
+}
+
+body:has(dialog[open]) {
+  overflow: hidden;
+}
+
+dialog.janela {
+  margin: auto;
+  width: min(100% - 1.5rem, 40rem);
+  max-height: min(92dvh, 56rem);
+  padding: 0;
+  border: 0;
+  border-radius: 1.25rem;
+  background: var(--color-cartao);
+  color: var(--color-tinta);
+}
+
+dialog.janela[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+dialog.janela::backdrop {
+  background: rgb(15 25 18 / 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
