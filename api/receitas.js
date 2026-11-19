@@ -124,9 +124,12 @@ function montarConsulta(params) {
 
 export async function GET(request) {
   const chave = process.env.SPOONACULAR_API_KEY;
+  const params = new URL(request.url).searchParams;
+  // A página pergunta antes de mostrar receitas e semana; a resposta não consulta o Spoonacular.
+  if (params.has('status')) return json({ configurada: Boolean(chave) }, 200);
   if (!chave) return json({ erro: 'A busca de receitas não está configurada neste ambiente.' }, 503);
 
-  const consulta = montarConsulta(new URL(request.url).searchParams);
+  const consulta = montarConsulta(params);
   if (consulta.erro) return json({ erro: consulta.erro }, 400);
 
   const url = new URL(BASE + consulta.caminho);

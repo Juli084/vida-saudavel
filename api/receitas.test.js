@@ -74,6 +74,15 @@ describe('GET /api/receitas', () => {
     assert.equal((await pedir('q=salada')).status, 503);
   });
 
+  it('informa se a busca está configurada, sem chamar o Spoonacular nem mostrar a chave', async () => {
+    simularSpoonacular(new Error('não deveria chamar'));
+    const comChave = await pedir('status=1');
+    assert.deepEqual(await comChave.json(), { configurada: true });
+    delete process.env.SPOONACULAR_API_KEY;
+    assert.deepEqual(await (await pedir('status=1')).json(), { configurada: false });
+    assert.equal(chamadas.length, 0);
+  });
+
   it('busca com filtros traduzidos para o Spoonacular, com a chave só no cabeçalho', async () => {
     simularSpoonacular(Response.json({ results: [], totalResults: 0 }));
     const resposta = await pedir('q=frango&dieta=vegetariana&sem=gluten&sem=lactose&refeicao=principal&tempo=30&pagina=2');
