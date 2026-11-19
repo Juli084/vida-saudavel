@@ -93,6 +93,11 @@ regras deixam a lista útil:
   prontas, embutidos, empanados, pão de forma, biscoitos, bolos, cereal matinal, sucos envasados e
   extratos. Por 100 g eles ganhariam de tudo, e o Guia Alimentar recomenda evitar os
   ultraprocessados.
+- **Doces de fruta e enlatados fora:** frutas em calda, em barra, em pasta ou com xarope, e
+  enlatados. A "batata, doce" continua, porque ali "doce" é o nome da batata.
+
+As mesmas regras ordenam a busca: entre os alimentos com o nome pesquisado, os que entrariam nas
+sugestões aparecem primeiro. Quem busca "banana" vê as bananas cruas antes da banana em barra.
 
 A ordem é a da tabela. Ela não recomenda dieta nem quantidade, e não substitui orientação de
 nutricionista.

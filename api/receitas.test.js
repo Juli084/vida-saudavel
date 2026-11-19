@@ -47,8 +47,11 @@ const receitaCompleta = {
 
 describe('tradução', () => {
   it('troca termos comuns de português para inglês, inclusive com acento e duas palavras', () => {
-    assert.equal(traduzirBusca('Frango com Batata-Doce'), 'chicken com sweet potato');
-    assert.equal(traduzirBusca('salada de grão de bico'), 'salad de chickpea');
+    assert.equal(traduzirBusca('Frango com Batata-Doce'), 'chicken sweet potato');
+    assert.equal(traduzirBusca('salada de grão de bico'), 'salad chickpea');
+    assert.equal(traduzirBusca('salada de frango'), 'salad chicken');
+    assert.equal(traduzirBusca('Pão de queijo'), 'brazilian cheese bread');
+    assert.equal(traduzirBusca('feijoada'), 'feijoada');
     assert.equal(traduzirBusca('ramen'), 'ramen');
   });
 

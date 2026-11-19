@@ -48,12 +48,16 @@ test('busca com filtros, planeja a semana e soma a lista de compras', async ({ p
   const consultas = await simular(page);
   await page.goto('/');
 
-  await page.getByRole('textbox', { name: 'O que você quer cozinhar' }).fill('grão de bico');
-  await page.getByRole('button', { name: 'Vegetariana' }).click();
-  await page.getByRole('button', { name: 'Sem glúten' }).click();
-  await page.getByLabel('Tempo de preparo').selectOption('30');
+  // A mesma pesquisa traz a composição (TACO) e as receitas; os filtros refazem só as receitas.
+  await page.getByRole('searchbox', { name: 'Alimento ou prato' }).fill('grão de bico');
   await page.getByRole('button', { name: 'Buscar' }).click();
-  await expect(page.getByText('2 receitas para "chickpea"')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Composição nutricional' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Grão-de-bico, cru/ })).toBeVisible();
+  await expect(page.getByText('2 receitas para “chickpea”')).toBeVisible();
+  await page.getByRole('button', { name: 'Vegetariana', exact: true }).click();
+  await page.getByRole('button', { name: 'Sem glúten', exact: true }).click();
+  await page.getByLabel('Tempo de preparo').selectOption('30');
+  await expect(page.getByText('2 receitas para “chickpea”')).toBeVisible();
   const busca = consultas.at(-1)!;
   expect([busca.get('q'), busca.get('dieta'), busca.getAll('sem'), busca.get('tempo')]).toEqual(['grão de bico', 'vegetariana', ['gluten'], '30']);
 
@@ -90,11 +94,15 @@ test('busca com filtros, planeja a semana e soma a lista de compras', async ({ p
   expect(erros).toEqual([]);
 });
 
-test('mostra os dez passos com o link para o guia oficial', async ({ page }) => {
+test('dicas: três de início, os dez passos do guia oficial em "Ver mais dicas"', async ({ page }) => {
   await simular(page);
   await page.goto('/');
-  const guia = page.getByRole('region', { name: 'Dez passos para comer bem' });
+  const guia = page.getByRole('region', { name: 'Dicas Nutricionais para uma Vida Saudável' });
+  await expect(guia.getByRole('listitem')).toHaveCount(3);
+  await guia.getByRole('button', { name: 'Ver mais dicas' }).click();
   await expect(guia.getByRole('listitem')).toHaveCount(10);
+  await guia.getByRole('button', { name: 'Ver menos' }).click();
+  await expect(guia.getByRole('listitem')).toHaveCount(3);
   await expect(guia.getByRole('link', { name: /Guia Alimentar para a População Brasileira/ })).toHaveAttribute(
     'href',
     'https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_populacao_brasileira_2ed.pdf',

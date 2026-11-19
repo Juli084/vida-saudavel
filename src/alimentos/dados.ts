@@ -67,13 +67,19 @@ export function semAcento(texto: string): string {
   return texto.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
 }
 
+const LIGACOES = new Set(['de', 'da', 'do', 'das', 'dos', 'com', 'e', 'em', 'na', 'no']);
+
 /**
  * Todas as palavras digitadas precisam aparecer no nome, sem importar acento ou ordem
  * ("feijao preto" acha "Feijão, preto, cozido"). Quem começa com a primeira palavra vem antes,
- * e o cozido vem antes do cru, porque é o que se come.
+ * e o cozido vem antes do cru, porque é o que se come. Com os nomes dos grupos, o que entra
+ * nas sugestões (comida do dia a dia) vem antes de doces, enlatados e ultraprocessados.
  */
-export function buscar(alimentos: Alimento[], termo: string, grupo: number | null = null): Alimento[] {
-  const palavras = semAcento(termo).split(/[\s,]+/).filter(Boolean);
+export function buscar(alimentos: Alimento[], termo: string, grupo: number | null = null, grupos?: string[]): Alimento[] {
+  const todas = semAcento(termo).split(/[\s,]+/).filter(Boolean);
+  // "arroz com feijão" procura arroz e feijão; se só sobrar palavra de ligação, usa o que foi digitado.
+  const uteis = todas.filter((p) => !LIGACOES.has(p));
+  const palavras = uteis.length ? uteis : todas;
   const pontuados: { alimento: Alimento; pontos: number }[] = [];
   for (const alimento of alimentos) {
     if (grupo !== null && alimento.grupo !== grupo) continue;
@@ -83,6 +89,7 @@ export function buscar(alimentos: Alimento[], termo: string, grupo: number | nul
     const primeira = palavras[0];
     if (primeira && nome.startsWith(primeira)) pontos -= 10;
     if (/\bcru[a]?\b/.test(nome)) pontos += 1;
+    if (grupos && !entraNasSugestoes(alimento, grupos)) pontos += 5;
     pontuados.push({ alimento, pontos });
   }
   return pontuados.sort((a, b) => a.pontos - b.pontos || a.alimento.nome.localeCompare(b.alimento.nome, 'pt-BR')).map((p) => p.alimento);
@@ -159,6 +166,9 @@ export function entraNasSugestoes(alimento: Alimento, grupos: string[]): boolean
   // Ultraprocessados que o Guia Alimentar pede para evitar, mesmo quando têm muito de algum
   // nutriente: embutidos, empanados, pão de forma, biscoitos, bolos e bebidas prontas.
   if (/hamburguer|salsicha|linguica|mortadela|presunto|apresuntado|salame|nuggets|empanad|\bforma\b|biscoito|\bbolo\b|petit suisse|envasad|concentrado|extrato|cereal matinal/.test(nome)) return false;
+  // Frutas transformadas em doce (em calda, em barra, em pasta, com xarope) e enlatados.
+  // "Batata, doce" continua: ali "doce" é o nome da batata.
+  if (/doce em|doce, cascao|\bcalda\b|xarope|enlatad/.test(nome)) return false;
   return true;
 }
 

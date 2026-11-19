@@ -9,8 +9,8 @@ const PORCOES = [50, 100, 150, 200];
 export function BarraDoVd({ percentual }: { percentual: number | null }) {
   if (percentual === null) return null;
   return (
-    <span aria-hidden="true" className="block h-1.5 w-full overflow-hidden rounded-full bg-folha-clara">
-      <span className="block h-full rounded-full bg-folha" style={{ width: `${Math.min(100, percentual)}%` }} />
+    <span aria-hidden="true" className="block h-1.5 w-full overflow-hidden rounded-full bg-green-100">
+      <span className="block h-full rounded-full bg-green-600" style={{ width: `${Math.min(100, percentual)}%` }} />
     </span>
   );
 }
@@ -49,18 +49,18 @@ export function FichaDoAlimento({ alimento, grupo, onFechar }: { alimento: Alime
     >
       {alimento ? (
         <>
-          <div className="flex items-start gap-3 border-b border-linha px-5 py-3">
+          <div className="flex items-start gap-3 border-b border-gray-200 px-5 py-3">
             <div className="flex-1">
-              <h2 className="text-lg font-bold">{alimento.nome}</h2>
-              <p className="text-xs text-suave">{grupo}</p>
+              <h2 className="text-lg font-bold text-green-800">{alimento.nome}</h2>
+              <p className="text-xs text-gray-500">{grupo}</p>
             </div>
-            <button type="button" onClick={onFechar} aria-label="Fechar" className="grid size-10 place-items-center rounded-full text-suave hover:bg-fundo">
+            <button type="button" onClick={onFechar} aria-label="Fechar" className="grid size-10 place-items-center rounded-full text-gray-500 hover:bg-gray-100">
               <X size={20} aria-hidden="true" />
             </button>
           </div>
           <div className="flex-1 overflow-y-auto px-5 py-4">
             <fieldset>
-              <legend className="text-sm font-semibold">Porção</legend>
+              <legend className="text-sm font-semibold text-gray-800">Porção</legend>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 {PORCOES.map((p) => (
                   <button
@@ -68,13 +68,13 @@ export function FichaDoAlimento({ alimento, grupo, onFechar }: { alimento: Alime
                     type="button"
                     aria-pressed={gramas === p}
                     onClick={() => escolher(p)}
-                    className={`rounded-full border px-3 py-1.5 text-sm ${gramas === p ? 'border-folha bg-folha text-white' : 'border-linha'}`}
+                    className={`rounded-full border px-3 py-1.5 text-sm transition ${gramas === p ? 'border-green-600 bg-green-600 text-white' : 'border-gray-300 text-gray-700 hover:bg-green-50'}`}
                   >
                     {p} g
                   </button>
                 ))}
                 <label className="flex items-center gap-2 text-sm">
-                  <span className="text-suave">Outra:</span>
+                  <span className="text-gray-500">Outra:</span>
                   <input
                     type="number"
                     inputMode="numeric"
@@ -88,9 +88,9 @@ export function FichaDoAlimento({ alimento, grupo, onFechar }: { alimento: Alime
                     }}
                     onBlur={() => setTexto(String(gramas))}
                     aria-label="Gramas da porção"
-                    className="h-9 w-20 rounded-lg border border-linha bg-cartao px-2"
+                    className="h-9 w-20 rounded-lg border border-gray-300 bg-white px-2"
                   />
-                  <span className="text-suave">g</span>
+                  <span className="text-gray-500">g</span>
                 </label>
               </div>
             </fieldset>
@@ -98,7 +98,7 @@ export function FichaDoAlimento({ alimento, grupo, onFechar }: { alimento: Alime
             <table className="mt-4 w-full text-sm">
               <caption className="sr-only">Composição em {gramas} g</caption>
               <thead>
-                <tr className="text-left text-xs text-suave">
+                <tr className="text-left text-xs text-gray-500">
                   <th scope="col" className="pb-1 font-medium">
                     Em {gramas} g
                   </th>
@@ -115,13 +115,13 @@ export function FichaDoAlimento({ alimento, grupo, onFechar }: { alimento: Alime
                   const valor = naPorcao(alimento[n.chave], gramas);
                   const percentual = percentualDoVd(valor, n);
                   return (
-                    <tr key={n.chave} className="border-t border-linha/70">
+                    <tr key={n.chave} className="border-t border-gray-100">
                       <th scope="row" className="py-1.5 text-left font-normal">
                         {n.nome}
                       </th>
                       <td className="py-1.5 text-right tabular-nums">{formatarValor(valor, n.unidade)}</td>
                       <td className="py-1.5 pl-3">
-                        <span className="block text-right text-xs text-suave tabular-nums">
+                        <span className="block text-right text-xs text-gray-500 tabular-nums">
                           {valor === 'Tr' && n.vd !== null ? 'menos de 1%' : formatarPercentual(percentual)}
                         </span>
                         <BarraDoVd percentual={percentual} />
@@ -131,27 +131,41 @@ export function FichaDoAlimento({ alimento, grupo, onFechar }: { alimento: Alime
                 })}
               </tbody>
             </table>
-            <p className="mt-3 text-xs text-suave">
+            <p className="mt-3 text-xs text-gray-500">
               Fonte: TACO, 4ª edição (NEPA/UNICAMP). %VD: valores diários de referência da Anvisa (IN nº 75/2020), com base em 2.000
               kcal. "Traços": presente em quantidade muito pequena para medir. "–": sem dado na tabela ou não se aplica.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3 border-t border-linha bg-fundo/60 px-5 py-3">
+          <div className="flex flex-wrap items-center gap-3 border-t border-gray-200 bg-green-50 px-5 py-3">
             <button
               type="button"
               onClick={() => {
                 porNoPrato(alimento.id, gramas);
                 setAdicionado(`${gramas} g no prato.`);
               }}
-              className="inline-flex h-10 items-center gap-2 rounded-lg bg-folha px-4 text-sm font-semibold text-white hover:bg-folha-escura"
+              className="inline-flex h-10 items-center gap-2 rounded-xl bg-green-600 px-4 text-sm font-semibold text-white hover:bg-green-700"
             >
               <Plus size={17} aria-hidden="true" />
               Pôr {gramas} g no prato
             </button>
             {adicionado ? (
-              <p role="status" className="text-sm text-folha-escura">
-                {adicionado}
-              </p>
+              <>
+                <p role="status" className="text-sm text-green-800">
+                  {adicionado}
+                </p>
+                <a
+                  href="#prato"
+                  onClick={(e) => {
+                    // Fecha a ficha antes de rolar: com o diálogo aberto, a página fica travada.
+                    e.preventDefault();
+                    onFechar();
+                    setTimeout(() => document.getElementById('prato')?.scrollIntoView(), 50);
+                  }}
+                  className="text-sm font-medium text-green-700 underline"
+                >
+                  Ver meu prato
+                </a>
+              </>
             ) : null}
           </div>
         </>

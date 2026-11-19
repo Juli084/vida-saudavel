@@ -1,32 +1,20 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  --color-fundo: #f4f7f2;
-  --color-cartao: #ffffff;
-  --color-tinta: #17211b;
-  --color-suave: #5d6b62;
-  --color-linha: #dde5dc;
-  --color-folha: #2f7a4b;
-  --color-folha-escura: #1f5534;
-  --color-folha-clara: #e3f1e7;
-  --color-alerta: #b54708;
-}
+/* Visual do projeto original: fundo branco, verdes e cinzas padrão do Tailwind. */
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 4.5rem;
+  scroll-padding-top: 5rem;
 }
 
 body {
-  background: var(--color-fundo);
-  color: var(--color-tinta);
-  font-family: var(--font-sans);
+  background: #ffffff;
+  color: #1f2937;
   -webkit-font-smoothing: antialiased;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-folha);
+  outline: 2px solid #16a34a;
   outline-offset: 2px;
 }
 
@@ -40,9 +28,10 @@ dialog.janela {
   max-height: min(92dvh, 56rem);
   padding: 0;
   border: 0;
-  border-radius: 1.25rem;
-  background: var(--color-cartao);
-  color: var(--color-tinta);
+  border-radius: 1rem;
+  background: #ffffff;
+  color: #1f2937;
+  box-shadow: 0 20px 40px rgb(0 0 0 / 0.2);
 }
 
 dialog.janela[open] {
@@ -51,7 +40,7 @@ dialog.janela[open] {
 }
 
 dialog.janela::backdrop {
-  background: rgb(15 25 18 / 0.5);
+  background: rgb(5 46 22 / 0.45);
 }
 
 @media (prefers-reduced-motion: reduce) {
