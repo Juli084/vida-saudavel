@@ -4,6 +4,12 @@
 // português na tela. O que não está aqui aparece como veio.
 
 export const PARA_INGLES = {
+  // Pratos que têm nome próprio em inglês.
+  'pao de queijo': 'brazilian cheese bread',
+  'salada de frutas': 'fruit salad',
+  'bolo de cenoura': 'carrot cake',
+  'arroz com feijao': 'rice and beans',
+  'feijao preto': 'black beans',
   frango: 'chicken',
   carne: 'beef',
   'carne moida': 'ground beef',
@@ -122,12 +128,17 @@ export function semAcento(texto) {
   return texto.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
 }
 
-/** Troca expressões de duas palavras primeiro ("batata doce") e depois palavras soltas. */
+// Palavras de ligação em português atrapalham a busca em inglês: "salada de frango" vira "salad chicken".
+const LIGACOES = new Set(['de', 'da', 'do', 'das', 'dos', 'com', 'e', 'em', 'na', 'no']);
+
+/** Troca primeiro as expressões mais longas ("batata doce"), depois as palavras soltas, e tira as palavras de ligação. */
 export function traduzirBusca(termo) {
   let texto = ` ${semAcento(termo).replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ')} `;
   const chaves = Object.keys(PARA_INGLES).sort((a, b) => b.length - a.length);
   for (const chave of chaves) texto = texto.replaceAll(` ${chave} `, ` ${PARA_INGLES[chave]} `);
-  return texto.trim();
+  const palavras = texto.trim().split(' ').filter(Boolean);
+  const uteis = palavras.filter((p) => !LIGACOES.has(p));
+  return (uteis.length ? uteis : palavras).join(' ');
 }
 
 export function nomeEmPortugues(nome) {

@@ -1,4 +1,4 @@
-import { Check, Copy, Trash2, UtensilsCrossed, X } from 'lucide-react';
+import { Check, Copy, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { formatarPercentual, formatarValor, naPorcao, NUTRIENTES, percentualDoVd, totalDoPrato, type ChaveDeNutriente } from '../alimentos/dados.ts';
 import { esvaziarPrato, GRAMAS_MAXIMAS, mudarGramas, tirarDoPrato, usePrato } from '../alimentos/prato.ts';
@@ -7,6 +7,7 @@ import { BarraDoVd } from './FichaDoAlimento.tsx';
 
 const NO_RESUMO: ChaveDeNutriente[] = ['energia', 'carboidrato', 'proteina', 'lipideos', 'saturados', 'fibra', 'sodio', 'calcio', 'ferro', 'potassio', 'vitaminaC', 'vitaminaA'];
 
+/** Só aparece depois que a pessoa põe algum alimento no prato pela ficha. */
 export function Prato() {
   const estado = useTabela();
   const itens = usePrato();
@@ -14,6 +15,7 @@ export function Prato() {
 
   if (estado.tipo !== 'ok') return null;
   const conhecidos = itens.filter((i) => estado.porId.has(i.id));
+  if (conhecidos.length === 0) return null;
   const totais = totalDoPrato(conhecidos, estado.porId);
   const resumo = NUTRIENTES.filter((n) => NO_RESUMO.includes(n.chave));
 
@@ -29,39 +31,26 @@ export function Prato() {
   }
 
   return (
-    <section id="prato" aria-labelledby="titulo-prato" className="scroll-mt-20">
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <h2 id="titulo-prato" className="text-2xl font-bold">
-            Meu prato
-          </h2>
-          <p className="mt-1 text-sm text-suave">Abra um alimento e use "Pôr no prato". O prato fica neste navegador.</p>
-        </div>
-        {conhecidos.length ? (
-          <button type="button" onClick={esvaziarPrato} className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-suave hover:text-alerta">
-            <Trash2 size={15} aria-hidden="true" />
-            Esvaziar prato
-          </button>
-        ) : null}
-      </div>
-
-      {conhecidos.length === 0 ? (
-        <p className="mt-4 flex items-center gap-3 rounded-2xl border border-dashed border-linha bg-cartao px-4 py-6 text-suave">
-          <UtensilsCrossed size={22} aria-hidden="true" className="shrink-0 text-folha" />
-          O prato está vazio. Busque um alimento acima, escolha a porção e ponha no prato para ver o total.
+    <section id="prato" aria-labelledby="titulo-prato" className="scroll-mt-20 bg-green-50 px-6 py-16">
+      <div className="mx-auto max-w-6xl">
+        <h2 id="titulo-prato" className="mb-2 text-center text-3xl font-bold text-green-800">
+          Meu prato
+        </h2>
+        <p className="mb-8 text-center text-sm text-gray-600">
+          A soma do que você pôs no prato, com o percentual do valor diário. O prato fica salvo neste navegador.
         </p>
-      ) : (
-        <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_1fr]">
-          <ul className="space-y-2" aria-label="Alimentos no prato">
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <ul className="space-y-3" aria-label="Alimentos no prato">
             {conhecidos.map((item) => {
               const alimento = estado.porId.get(item.id)!;
               return (
-                <li key={item.id} className="flex items-center gap-3 rounded-xl border border-linha bg-cartao px-3 py-2">
+                <li key={item.id} className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-md">
                   <span className="flex-1">
-                    <span className="block text-sm font-medium">{alimento.nome}</span>
-                    <span className="text-xs text-suave">{formatarValor(naPorcao(alimento.energia, item.gramas), 'kcal')}</span>
+                    <span className="block font-medium text-gray-800">{alimento.nome}</span>
+                    <span className="text-sm text-gray-500">{formatarValor(naPorcao(alimento.energia, item.gramas), 'kcal')}</span>
                   </span>
-                  <label className="flex items-center gap-1 text-sm">
+                  <label className="flex items-center gap-1 text-sm text-gray-600">
                     <input
                       type="number"
                       inputMode="numeric"
@@ -74,7 +63,7 @@ export function Prato() {
                         if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
                       }}
                       aria-label={`Gramas de ${alimento.nome}`}
-                      className="h-9 w-20 rounded-lg border border-linha px-2 text-right"
+                      className="h-9 w-20 rounded-lg border border-gray-300 px-2 text-right"
                     />
                     g
                   </label>
@@ -82,7 +71,7 @@ export function Prato() {
                     type="button"
                     onClick={() => tirarDoPrato(item.id)}
                     aria-label={`Tirar ${alimento.nome} do prato`}
-                    className="grid size-9 place-items-center rounded-full text-suave hover:bg-fundo"
+                    className="grid size-9 place-items-center rounded-full text-gray-500 hover:bg-gray-100"
                   >
                     <X size={16} aria-hidden="true" />
                   </button>
@@ -90,8 +79,9 @@ export function Prato() {
               );
             })}
           </ul>
-          <div className="rounded-2xl border border-linha bg-cartao p-4">
-            <h3 className="font-bold">Total do prato</h3>
+
+          <div className="rounded-2xl bg-white p-5 shadow-md">
+            <h3 className="text-lg font-bold text-gray-800">Total do prato</h3>
             <table className="mt-2 w-full text-sm">
               <caption className="sr-only">Total de nutrientes do prato e porcentagem do valor diário</caption>
               <tbody>
@@ -101,14 +91,14 @@ export function Prato() {
                   const semNenhumDado = t.semDado === conhecidos.length;
                   const percentual = semNenhumDado ? null : percentualDoVd(t.valor, n);
                   return (
-                    <tr key={n.chave} className="border-t border-linha/70">
+                    <tr key={n.chave} className="border-t border-gray-100">
                       <th scope="row" className="py-1.5 text-left font-normal">
                         {n.nome}
-                        {t.semDado && !semNenhumDado ? <span className="text-alerta"> *</span> : null}
+                        {t.semDado && !semNenhumDado ? <span className="text-amber-700"> *</span> : null}
                       </th>
                       <td className="py-1.5 text-right tabular-nums">{semNenhumDado ? '–' : formatarValor(t.valor, n.unidade)}</td>
                       <td className="w-28 py-1.5 pl-3">
-                        <span className="block text-right text-xs text-suave tabular-nums">{formatarPercentual(percentual)}</span>
+                        <span className="block text-right text-xs text-gray-500 tabular-nums">{formatarPercentual(percentual)}</span>
                         <BarraDoVd percentual={percentual} />
                       </td>
                     </tr>
@@ -117,26 +107,36 @@ export function Prato() {
               </tbody>
             </table>
             {resumo.some((n) => totais[n.chave].semDado && totais[n.chave].semDado < conhecidos.length) ? (
-              <p className="mt-2 text-xs text-alerta">* Algum alimento do prato não tem este dado na tabela: o total real pode ser maior.</p>
+              <p className="mt-2 text-xs text-amber-700">* Algum alimento do prato não tem este dado na tabela: o total real pode ser maior.</p>
             ) : null}
-            <button
-              type="button"
-              onClick={async () => {
-                try {
-                  await navigator.clipboard.writeText(comoTexto());
-                  setCopiado(true);
-                } catch {
-                  setCopiado(false);
-                }
-              }}
-              className="mt-3 inline-flex items-center gap-2 rounded-lg border border-linha px-3 py-2 text-sm font-medium"
-            >
-              {copiado ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
-              {copiado ? 'Resumo copiado' : 'Copiar resumo'}
-            </button>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(comoTexto());
+                    setCopiado(true);
+                  } catch {
+                    setCopiado(false);
+                  }
+                }}
+                className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
+              >
+                {copiado ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
+                {copiado ? 'Resumo copiado' : 'Copiar resumo'}
+              </button>
+              <button
+                type="button"
+                onClick={esvaziarPrato}
+                className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-gray-500 hover:text-red-700"
+              >
+                <Trash2 size={15} aria-hidden="true" />
+                Esvaziar prato
+              </button>
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </section>
   );
 }

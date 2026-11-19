@@ -5,41 +5,48 @@ brasileiros. React 19, TypeScript, Tailwind e Vite.
 
 **No ar:** [vida-saudavel-tau.vercel.app](https://vida-saudavel-tau.vercel.app)
 
-- **Alimentos:** a composição de 597 alimentos da Tabela Brasileira de Composição de Alimentos
-  (TACO, NEPA/UNICAMP).
-- **Valor diário:** o quanto cada porção representa do valor diário de referência da Anvisa.
-- **Sugestões:** os alimentos com mais (ou menos) de cada nutriente.
-- **Meu prato:** o total do prato montado.
-- **Receitas e semana:** com uma chave do Spoonacular, também receitas, plano da semana e lista
+A página segue o layout original do projeto: topo, busca, dicas. Nada de tabela aberta logo de
+cara: os dados aparecem quando a pessoa pesquisa um alimento ou prato.
+
+- **Composição:** os alimentos com o nome pesquisado, entre os 597 da Tabela Brasileira de
+  Composição de Alimentos (TACO, NEPA/UNICAMP).
+- **Receitas:** com uma chave do Spoonacular, receitas do mesmo termo, plano da semana e lista
   de compras.
-- **Guia:** os dez passos do Guia Alimentar do Ministério da Saúde.
+- **Sugestões:** um toque em "mais fibra", "mais ferro" etc. lista os alimentos com mais (ou
+  menos) daquele nutriente.
+- **Meu prato:** o total do prato montado, com o valor diário da Anvisa.
+- **Dicas:** os dez passos do Guia Alimentar do Ministério da Saúde.
 
 ## O que faz
 
-- **Busca de alimentos.**
-  - Encontra pelo nome sem precisar de acento, e as palavras podem vir em qualquer ordem:
-    "feijao preto" acha "Feijão, preto, cozido".
-  - Dá para filtrar por um dos 15 grupos da TACO.
-  - O cozido aparece antes do cru.
+- **Pesquisa.** Um campo só, para alimento ou prato ("banana", "feijoada", "arroz com feijão").
+  - Acha pelo nome sem precisar de acento, com as palavras em qualquer ordem: "feijao preto" acha
+    "Feijão, preto, cozido". Palavras de ligação ("de", "com") são ignoradas.
+  - Cada alimento aparece num cartão com energia, proteínas, carboidratos, gorduras, fibras e
+    sódio em 100 g.
+  - A comida do dia a dia vem primeiro: o cozido antes do cru, e a fruta antes do doce de fruta.
+  - A mesma pesquisa traz as receitas, com filtros de dieta, glúten, lactose, tempo e tipo de
+    refeição.
 - **Ficha do alimento.** Porção de 50, 100, 150 ou 200 g, ou qualquer valor até 2 kg. Mostra
   energia, macronutrientes, fibra, sódio, colesterol, minerais e vitaminas, cada um com o %VD da
   Anvisa (IN nº 75/2020) e uma barra.
-- **Sugestões.**
+- **Sugestões por nutriente.**
   - **Objetivos:** mais fibra, proteína, ferro, cálcio, vitamina C, vitamina A ou potássio, ou
     menos calorias.
   - **Base:** por 100 g, ou por 100 kcal, que mostra quem entrega mais do nutriente com menos
-    calorias.
+    calorias. Dá para limitar a um grupo da TACO.
   - **Fora da lista:** sal, doces, bebidas, óleos, alimentos crus que só se comem cozidos,
-    concentrados e ultraprocessados.
-- **Meu prato.** Cada alimento entra com a sua porção, e as gramas podem ser trocadas depois. O
-  total vem com %VD e pode ser copiado. O prato fica no navegador, conferido ao ler. Se algum
-  alimento não tem um nutriente na tabela, o total avisa que é parcial em vez de contar zero.
+    concentrados, frutas em calda e ultraprocessados.
+- **Meu prato.** Aparece quando o primeiro alimento entra. Cada alimento entra com a sua porção, e
+  as gramas podem ser trocadas depois. O total vem com %VD e pode ser copiado. O prato fica no
+  navegador, conferido ao ler. Se algum alimento não tem um nutriente na tabela, o total avisa
+  que é parcial em vez de contar zero.
 - **Receitas, semana e lista de compras.** Funcionam quando a chave do Spoonacular está
-  configurada no servidor (detalhes abaixo). Sem a chave, a página explica o motivo em vez de
-  mostrar uma busca que só daria erro.
-- **Guia alimentar.** Os dez passos do
+  configurada no servidor (detalhes abaixo). Sem a chave, a pesquisa mostra só a composição e
+  avisa que as receitas não estão disponíveis. A semana aparece quando a primeira receita entra.
+- **Dicas.** Os dez passos do
   [Guia Alimentar para a População Brasileira](https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_populacao_brasileira_2ed.pdf)
-  (Ministério da Saúde, 2014), com os títulos do guia e resumos meus.
+  (Ministério da Saúde, 2014), três de cada vez, com os títulos do guia e resumos meus.
 
 ## Dados
 
@@ -50,8 +57,8 @@ A extração da TACO, a conferência e os valores diários de referência estão
 - os scripts de extração e de conferência, em `scripts/taco/`;
 - as checagens de coerência.
 
-A tabela (200 KB, cerca de 30 KB comprimida) só é baixada quando a página carrega a parte de
-alimentos. Ela vai junto com o site, sem depender de serviço externo nem de chave.
+A tabela (200 KB, cerca de 30 KB comprimida) é baixada à parte, depois da página. Ela vai junto
+com o site, sem depender de serviço externo nem de chave.
 
 ## Receitas: termos do Spoonacular
 

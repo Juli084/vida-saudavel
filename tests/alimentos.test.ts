@@ -67,6 +67,24 @@ describe('busca', () => {
     expect(buscar(tabela.alimentos, 'xyz123')).toEqual([]);
   });
 
+  it('ignora palavras de ligação, para achar pratos escritos do jeito que se fala', () => {
+    expect(buscar(tabela.alimentos, 'arroz com feijão').map((a) => a.nome)).toEqual(['Baião de dois, arroz e feijão-de-corda']);
+    expect(buscar(tabela.alimentos, 'pão de queijo').map((a) => a.nome)).toEqual(['Pão, de queijo, assado', 'Pão, de queijo, cru']);
+    expect(buscar(tabela.alimentos, 'feijoada').map((a) => a.nome)).toEqual(['Feijoada']);
+    // Só palavra de ligação: usa o que foi digitado, não devolve a tabela inteira.
+    expect(buscar(tabela.alimentos, 'de').length).toBeLessThan(tabela.alimentos.length);
+  });
+
+  it('com os grupos, põe a comida do dia a dia antes de doce e enlatado', () => {
+    const bananas = buscar(tabela.alimentos, 'banana', null, tabela.grupos).map((a) => a.nome);
+    expect(bananas).toHaveLength(8);
+    expect(bananas.at(-1)).toBe('Banana, doce em barra');
+    expect(bananas.slice(0, 7).every((nome) => /crua$/.test(nome))).toBe(true);
+    const nomes = (lista: string[]) => lista.map((nome) => tabela.alimentos.find((a) => a.nome === nome)!);
+    for (const a of nomes(['Banana, doce em barra', 'Pêssego, enlatado, em calda', 'Goiaba, doce, cascão'])) expect(entraNasSugestoes(a, tabela.grupos), a.nome).toBe(false);
+    for (const a of nomes(['Batata, doce, cozida', 'Banana, prata, crua'])) expect(entraNasSugestoes(a, tabela.grupos), a.nome).toBe(true);
+  });
+
   it('filtra pelo grupo', () => {
     const frutas = tabela.grupos.indexOf('Frutas e derivados');
     const resultado = buscar(tabela.alimentos, '', frutas);
