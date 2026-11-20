@@ -53,6 +53,8 @@ export interface ReceitaNoPlano {
   id: number;
   titulo: string;
   imagem: string | null;
+  /** "ms": receita brasileira do Ministério da Saúde, que vai junto com o site. Sem fonte: Spoonacular. */
+  fonte?: 'ms';
 }
 export type Plano = Partial<Record<`${Dia}-${Refeicao}`, ReceitaNoPlano>>;
 
@@ -69,8 +71,14 @@ export function lerPlano(texto: string | null): Plano {
       for (const refeicao of REFEICOES) {
         const item = (bruto as Record<string, unknown>)[`${dia}-${refeicao}`];
         if (typeof item !== 'object' || item === null) continue;
-        const { id, titulo, imagem } = item as Record<string, unknown>;
+        const { id, titulo, imagem, fonte } = item as Record<string, unknown>;
         if (!Number.isInteger(id) || typeof titulo !== 'string') continue;
+        if (fonte === 'ms') {
+          // Receita brasileira: a foto é do próprio site.
+          const imagemValida = typeof imagem === 'string' && /^\/receitas\/ms-\d{1,3}\.webp$/.test(imagem) ? imagem : null;
+          plano[`${dia}-${refeicao}`] = { id: id as number, titulo: titulo.slice(0, 200), imagem: imagemValida, fonte: 'ms' };
+          continue;
+        }
         // Só imagem do próprio Spoonacular: a CSP não carrega de outros domínios.
         const imagemValida = typeof imagem === 'string' && /^https:\/\/img\.spoonacular\.com\//.test(imagem) ? imagem : null;
         plano[`${dia}-${refeicao}`] = { id: id as number, titulo: titulo.slice(0, 200), imagem: imagemValida };
@@ -102,8 +110,10 @@ function salvar(plano: Plano) {
   ouvintes.forEach((ouvir) => ouvir());
 }
 
-export function colocarNoPlano(dia: Dia, refeicao: Refeicao, receita: Receita) {
-  salvar({ ...carregar(), [`${dia}-${refeicao}`]: { id: receita.id, titulo: receita.titulo, imagem: receita.imagem } });
+export function colocarNoPlano(dia: Dia, refeicao: Refeicao, receita: ReceitaNoPlano) {
+  const item: ReceitaNoPlano = { id: receita.id, titulo: receita.titulo, imagem: receita.imagem };
+  if (receita.fonte === 'ms') item.fonte = 'ms';
+  salvar({ ...carregar(), [`${dia}-${refeicao}`]: item });
 }
 
 export function tirarDoPlano(dia: Dia, refeicao: Refeicao) {

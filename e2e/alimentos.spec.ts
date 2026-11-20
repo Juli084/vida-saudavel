@@ -26,9 +26,11 @@ test('mostra os dados só depois da pesquisa: ficha, prato e sugestões por nutr
   await test.step('pesquisa sem acento e abre a ficha', async () => {
     await busca.getByRole('searchbox', { name: 'Alimento ou prato' }).fill('feijao preto');
     await busca.getByRole('button', { name: 'Buscar' }).click();
+    // Duas abas, uma de cada vez: alimentos (TACO) aberta, receitas ao lado.
+    await expect(busca.getByRole('tab', { name: 'Alimentos (2)' })).toHaveAttribute('aria-selected', 'true');
+    await expect(busca.getByRole('tab', { name: /^Receitas/ })).toHaveAttribute('aria-selected', 'false');
     await expect(busca.getByText('2 alimentos encontrados')).toBeVisible();
-    // Sem a chave do Spoonacular, avisa em vez de mostrar uma busca de receitas que daria erro.
-    await expect(busca.getByText('As receitas ainda não estão disponíveis nesta versão publicada.')).toBeVisible();
+    await expect(busca.getByRole('heading', { name: 'Receitas brasileiras' })).toBeHidden();
 
     await busca.getByRole('button', { name: /^Feijão, preto, cozido/ }).click();
     const ficha = page.getByRole('dialog', { name: 'Feijão, preto, cozido' });

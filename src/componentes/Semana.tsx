@@ -14,7 +14,9 @@ import {
   usePlano,
   type ItemDaLista,
   type Receita,
+  type ReceitaNoPlano,
 } from '../dados.ts';
+import { carregarReceitas, ingredientesParaLista } from '../receitas/dados.ts';
 
 export function Semana() {
   const plano = usePlano();
@@ -67,30 +69,51 @@ export function Semana() {
             </li>
           ))}
         </ol>
-        <ListaDeCompras ids={[...new Set(planejadas.map((r) => r.id))]} />
+        <ListaDeCompras planejadas={planejadas} />
       </div>
     </section>
   );
 }
 
-function ListaDeCompras({ ids }: { ids: number[] }) {
+function ListaDeCompras({ planejadas }: { planejadas: ReceitaNoPlano[] }) {
   const [estado, setEstado] = useState<
     { tipo: 'parado' } | { tipo: 'carregando' } | { tipo: 'erro'; mensagem: string } | { tipo: 'ok'; itens: ItemDaLista[]; chave: string }
   >({ tipo: 'parado' });
   // Marcações só em memória: os termos do Spoonacular não permitem guardar ingredientes.
   const [marcados, setMarcados] = useState<Set<string>>(new Set());
   const [copiado, setCopiado] = useState(false);
-  const chave = ids.join(',');
+  // Receitas brasileiras vêm do próprio site; as internacionais, do Spoonacular, de novo a cada lista.
+  const brasileiras = [...new Set(planejadas.filter((r) => r.fonte === 'ms').map((r) => r.id))];
+  const internacionais = [...new Set(planejadas.filter((r) => r.fonte !== 'ms').map((r) => r.id))];
+  const total = brasileiras.length + internacionais.length;
+  const chave = `ms:${brasileiras.join(',')}|sp:${internacionais.join(',')}`;
 
   async function gerar() {
     setEstado({ tipo: 'carregando' });
     setMarcados(new Set());
     setCopiado(false);
-    const resultado = await consultar<{ receitas: Receita[] }>(new URLSearchParams({ ids: chave }));
-    setEstado(resultado.tipo === 'ok' ? { tipo: 'ok', itens: montarLista(resultado.dados.receitas), chave } : resultado);
+    const receitas: { titulo: string; ingredientes: { nome: string; quantidade: number | null; unidade: string }[] }[] = [];
+    if (brasileiras.length) {
+      try {
+        const base = await carregarReceitas();
+        for (const r of base.receitas.filter((x) => brasileiras.includes(x.id))) receitas.push({ titulo: r.nome, ingredientes: ingredientesParaLista(r) });
+      } catch {
+        setEstado({ tipo: 'erro', mensagem: 'Não foi possível carregar as receitas. Recarregue a página.' });
+        return;
+      }
+    }
+    if (internacionais.length) {
+      const resultado = await consultar<{ receitas: Receita[] }>(new URLSearchParams({ ids: internacionais.join(',') }));
+      if (resultado.tipo === 'erro') {
+        setEstado(resultado);
+        return;
+      }
+      receitas.push(...resultado.dados.receitas);
+    }
+    setEstado({ tipo: 'ok', itens: montarLista(receitas), chave });
   }
 
-  if (ids.length === 0) return null;
+  if (total === 0) return null;
   const desatualizada = estado.tipo === 'ok' && estado.chave !== chave;
   const faltando = estado.tipo === 'ok' ? estado.itens.filter((item) => !marcados.has(`${item.nome}|${item.unidade}`)) : [];
 
@@ -102,7 +125,7 @@ function ListaDeCompras({ ids }: { ids: number[] }) {
           Lista de compras
         </h3>
         <button type="button" onClick={gerar} className="rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700">
-          {estado.tipo === 'ok' ? 'Atualizar lista' : `Montar com ${ids.length} ${ids.length === 1 ? 'receita' : 'receitas'}`}
+          {estado.tipo === 'ok' ? 'Atualizar lista' : `Montar com ${total} ${total === 1 ? 'receita' : 'receitas'}`}
         </button>
       </div>
       {estado.tipo === 'carregando' ? <p className="mt-3 text-gray-500">Somando os ingredientes...</p> : null}

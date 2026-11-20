@@ -85,6 +85,9 @@ function montarConsulta(params) {
     addRecipeNutrition: 'true',
     fillIngredients: 'true',
     instructionsRequired: 'true',
+    // Primeiro as de melhor nota de saúde do Spoonacular, não as mais populares.
+    sort: 'healthiness',
+    sortDirection: 'desc',
   };
 
   const dieta = params.get('dieta');

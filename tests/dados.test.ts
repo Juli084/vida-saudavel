@@ -61,4 +61,15 @@ describe('plano salvo no navegador', () => {
     expect(lerPlano('lixo')).toEqual({});
     expect(lerPlano('[1,2]')).toEqual({});
   });
+
+  it('aceita receita brasileira com a foto do próprio site', () => {
+    const salvo = JSON.stringify({
+      'seg-almoco': { id: 360, titulo: 'Moqueca capixaba', imagem: '/receitas/ms-360.webp', fonte: 'ms' },
+      'ter-almoco': { id: 21, titulo: 'Peixe', imagem: 'https://outro-site.example/a.webp', fonte: 'ms' },
+    });
+    expect(lerPlano(salvo)).toEqual({
+      'seg-almoco': { id: 360, titulo: 'Moqueca capixaba', imagem: '/receitas/ms-360.webp', fonte: 'ms' },
+      'ter-almoco': { id: 21, titulo: 'Peixe', imagem: null, fonte: 'ms' },
+    });
+  });
 });
