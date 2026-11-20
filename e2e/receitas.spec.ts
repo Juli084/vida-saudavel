@@ -61,3 +61,30 @@ test('receitas brasileiras: pesquisa, ficha com nutrição, semana e lista de co
   expect(externas).toEqual([]);
   expect(erros).toEqual([]);
 });
+
+// Antes, a primeira pesquisa mostrava "Alimentos (0)" e só pulava para Receitas quando o arquivo
+// das receitas chegava. Aqui o arquivo fica preso até depois da pesquisa, como numa rede lenta.
+test('prato na primeira pesquisa abre em Receitas na hora, sem passar por Alimentos', async ({ page }) => {
+  await page.route('**/api/receitas?status=1', (rota) => rota.fulfill({ json: { configurada: false } }));
+  let liberar = () => {};
+  const solto = new Promise<void>((pronto) => (liberar = pronto));
+  await page.route('**/assets/ministerio-*.js', async (rota) => {
+    await solto;
+    await rota.continue();
+  });
+  // O arquivo é pedido na abertura da página, antes de qualquer pesquisa.
+  const pedido = page.waitForRequest('**/assets/ministerio-*.js');
+  await page.goto('/');
+  await pedido;
+
+  const busca = page.getByRole('region', { name: 'Pesquise um alimento ou prato' });
+  await busca.getByRole('searchbox', { name: 'Alimento ou prato' }).fill('moqueca');
+  await busca.getByRole('button', { name: 'Buscar' }).click();
+  await expect(busca.getByRole('tab', { name: 'Alimentos (0)' })).toHaveAttribute('aria-selected', 'false');
+  await expect(busca.getByRole('tab', { name: /^Receitas/ })).toHaveAttribute('aria-selected', 'true');
+  await expect(busca.getByText('Carregando as receitas...')).toBeVisible();
+
+  liberar();
+  await expect(busca.getByRole('tab', { name: 'Receitas (1)' })).toHaveAttribute('aria-selected', 'true');
+  await expect(busca.getByRole('button', { name: /^Moqueca capixaba/ })).toBeVisible();
+});

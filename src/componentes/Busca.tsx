@@ -231,8 +231,9 @@ function ResultadoDaBusca({ termo, internacionais, onAbrir }: { termo: string; i
   const achados = useMemo(() => (tabela.tipo === 'ok' ? buscar(tabela.tabela.alimentos, termo, null, tabela.tabela.grupos) : []), [tabela, termo]);
   const receitas = useMemo(() => (livro.tipo === 'ok' ? buscarReceitas(livro.base.receitas, termo) : { exatas: [], parecidas: [] }), [livro, termo]);
   const [escolhida, setEscolhida] = useState<Aba | null>(null);
-  // Sem alimento com esse nome e com receita, abre direto em receitas ("moqueca", "pierogui").
-  const aba: Aba = escolhida ?? (tabela.tipo === 'ok' && achados.length === 0 && receitas.exatas.length > 0 ? 'receitas' : 'alimentos');
+  // Sem alimento com esse nome, abre direto em receitas ("moqueca", "pierogui"). Não espera o
+  // arquivo de receitas chegar: decidir depois faria a aba pular de Alimentos para Receitas.
+  const aba: Aba = escolhida ?? (tabela.tipo === 'ok' && achados.length === 0 ? 'receitas' : 'alimentos');
   const id = useId();
   const abas: { valor: Aba; rotulo: string }[] = [
     { valor: 'alimentos', rotulo: tabela.tipo === 'ok' ? `Alimentos (${achados.length})` : 'Alimentos' },
@@ -286,8 +287,9 @@ function ResultadoDaBusca({ termo, internacionais, onAbrir }: { termo: string; i
 }
 
 export function Busca({ receitas }: { receitas: boolean | null }) {
-  // Baixa a tabela já na abertura, para o resultado sair na hora da busca.
+  // Baixa a tabela e as receitas já na abertura, para o resultado sair na hora da busca.
   const estado = useTabela();
+  useReceitasBrasileiras();
   const [texto, setTexto] = useState('');
   const [consulta, setConsulta] = useState<Consulta | null>(null);
   const [aberto, setAberto] = useState<Alimento | null>(null);
