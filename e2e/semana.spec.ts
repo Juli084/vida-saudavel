@@ -48,11 +48,15 @@ test('busca com filtros, planeja a semana e soma a lista de compras', async ({ p
   const consultas = await simular(page);
   await page.goto('/');
 
-  // A mesma pesquisa traz a composição (TACO) e as receitas; os filtros refazem só as receitas.
+  // As internacionais ficam recolhidas na aba de receitas: o Spoonacular só é consultado quando a pessoa pede.
   await page.getByRole('searchbox', { name: 'Alimento ou prato' }).fill('grão de bico');
   await page.getByRole('button', { name: 'Buscar' }).click();
   await expect(page.getByRole('heading', { name: 'Composição nutricional' })).toBeVisible();
   await expect(page.getByRole('button', { name: /^Grão-de-bico, cru/ })).toBeVisible();
+  await page.getByRole('tab', { name: /^Receitas/ }).click();
+  await expect(page.getByRole('heading', { name: 'Receitas brasileiras' })).toBeVisible();
+  expect(consultas.filter((p) => p.has('q'))).toEqual([]);
+  await page.getByRole('button', { name: 'Ver receitas internacionais' }).click();
   await expect(page.getByText('2 receitas para “chickpea”')).toBeVisible();
   await page.getByRole('button', { name: 'Vegetariana', exact: true }).click();
   await page.getByRole('button', { name: 'Sem glúten', exact: true }).click();

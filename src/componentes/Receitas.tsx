@@ -12,6 +12,7 @@ import {
   type Dia,
   type Receita,
   type Refeicao,
+  type ReceitaNoPlano,
   type Resultado,
 } from '../dados.ts';
 
@@ -109,11 +110,11 @@ export function ReceitasDaBusca({ termo }: { termo: string }) {
   return (
     <section aria-labelledby="titulo-receitas">
       <h3 id="titulo-receitas" className="text-2xl font-bold text-green-800">
-        Receitas com “{termo}”
+        Receitas internacionais
       </h3>
       <p className="mt-1 text-sm text-gray-600">
-        As receitas vêm da base do Spoonacular, que é em inglês. Termos comuns em português, como “frango” ou “grão de bico”,
-        são traduzidos na busca.
+        Da base do Spoonacular, em inglês, primeiro as de melhor nota de saúde. Termos comuns em português, como “frango” ou
+        “grão de bico”, são traduzidos na busca.
       </p>
 
       <div className="mt-4 flex flex-wrap items-center gap-2" role="group" aria-label="Filtros das receitas">
@@ -225,10 +226,6 @@ export function ReceitasDaBusca({ termo }: { termo: string }) {
 
 function DetalheDaReceita({ receita, onFechar }: { receita: Receita | null; onFechar: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);
-  const [dia, setDia] = useState<Dia>('seg');
-  const [refeicao, setRefeicao] = useState<Refeicao>('almoco');
-  const [adicionado, setAdicionado] = useState('');
-
   useEffect(() => {
     const dialogo = ref.current;
     if (!dialogo) return;
@@ -318,46 +315,56 @@ function DetalheDaReceita({ receita, onFechar }: { receita: Receita | null; onFe
               )}
             </p>
           </div>
-          <form
-            className="flex flex-wrap items-end gap-2 border-t border-gray-200 bg-green-50 px-5 py-3"
-            onSubmit={(e) => {
-              e.preventDefault();
-              colocarNoPlano(dia, refeicao, receita);
-              setAdicionado(`${NOMES_DOS_DIAS[dia]}, ${NOMES_DAS_REFEICOES[refeicao].toLowerCase()}`);
-            }}
-          >
-            <label className="text-sm">
-              <span className="block text-gray-600">Dia</span>
-              <select value={dia} onChange={(e) => setDia(e.target.value as Dia)} className="mt-1 h-10 rounded-lg border border-gray-300 bg-white px-2">
-                {DIAS.map((d) => (
-                  <option key={d} value={d}>
-                    {NOMES_DOS_DIAS[d]}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="text-sm">
-              <span className="block text-gray-600">Refeição</span>
-              <select value={refeicao} onChange={(e) => setRefeicao(e.target.value as Refeicao)} className="mt-1 h-10 rounded-lg border border-gray-300 bg-white px-2">
-                {REFEICOES.map((r) => (
-                  <option key={r} value={r}>
-                    {NOMES_DAS_REFEICOES[r]}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <button type="submit" className="inline-flex h-10 items-center gap-2 rounded-xl bg-green-600 px-4 text-sm font-semibold text-white hover:bg-green-700">
-              <CalendarPlus size={17} aria-hidden="true" />
-              Pôr na semana
-            </button>
-            {adicionado ? (
-              <p role="status" className="w-full text-sm text-green-800">
-                Adicionada em {adicionado}.
-              </p>
-            ) : null}
-          </form>
+          <PorNaSemana receita={{ id: receita.id, titulo: receita.titulo, imagem: receita.imagem }} />
         </>
       ) : null}
     </dialog>
+  );
+}
+
+/** Rodapé das fichas de receita: escolhe o dia e a refeição e põe a receita na semana. */
+export function PorNaSemana({ receita }: { receita: ReceitaNoPlano }) {
+  const [dia, setDia] = useState<Dia>('seg');
+  const [refeicao, setRefeicao] = useState<Refeicao>('almoco');
+  const [adicionado, setAdicionado] = useState('');
+  return (
+    <form
+      className="flex flex-wrap items-end gap-2 border-t border-gray-200 bg-green-50 px-5 py-3"
+      onSubmit={(e) => {
+        e.preventDefault();
+        colocarNoPlano(dia, refeicao, receita);
+        setAdicionado(`${NOMES_DOS_DIAS[dia]}, ${NOMES_DAS_REFEICOES[refeicao].toLowerCase()}`);
+      }}
+    >
+      <label className="text-sm">
+        <span className="block text-gray-600">Dia</span>
+        <select value={dia} onChange={(e) => setDia(e.target.value as Dia)} className="mt-1 h-10 rounded-lg border border-gray-300 bg-white px-2">
+          {DIAS.map((d) => (
+            <option key={d} value={d}>
+              {NOMES_DOS_DIAS[d]}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="text-sm">
+        <span className="block text-gray-600">Refeição</span>
+        <select value={refeicao} onChange={(e) => setRefeicao(e.target.value as Refeicao)} className="mt-1 h-10 rounded-lg border border-gray-300 bg-white px-2">
+          {REFEICOES.map((r) => (
+            <option key={r} value={r}>
+              {NOMES_DAS_REFEICOES[r]}
+            </option>
+          ))}
+        </select>
+      </label>
+      <button type="submit" className="inline-flex h-10 items-center gap-2 rounded-xl bg-green-600 px-4 text-sm font-semibold text-white hover:bg-green-700">
+        <CalendarPlus size={17} aria-hidden="true" />
+        Pôr na semana
+      </button>
+      {adicionado ? (
+        <p role="status" className="w-full text-sm text-green-800">
+          Adicionada em {adicionado}.
+        </p>
+      ) : null}
+    </form>
   );
 }

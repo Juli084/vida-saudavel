@@ -99,6 +99,8 @@ describe('GET /api/receitas', () => {
     assert.equal(url.searchParams.get('maxReadyTime'), '30');
     assert.equal(url.searchParams.get('offset'), '12');
     assert.equal(url.searchParams.get('addRecipeNutrition'), 'true');
+    assert.equal(url.searchParams.get('sort'), 'healthiness');
+    assert.equal(url.searchParams.get('sortDirection'), 'desc');
     assert.equal(opcoes.headers['x-api-key'], CHAVE);
     assert.ok(!url.href.includes(CHAVE), 'a chave não vai na URL');
     assert.equal(corpo.termoUsado, 'chicken');
