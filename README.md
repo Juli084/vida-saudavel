@@ -5,6 +5,15 @@ brasileiros. React 19, TypeScript, Tailwind e Vite.
 
 **No ar:** [vida-saudavel-tau.vercel.app](https://vida-saudavel-tau.vercel.app)
 
+![Pesquisa por "frango" no computador: a composição de cada corte pela tabela TACO, com energia, proteínas, carboidratos, gorduras, fibras e sódio](docs/tela.webp)
+
+<details>
+<summary>No celular</summary>
+
+![No celular: o topo da página, a composição do frango, as receitas com frango e a ficha com a porção de 150 g e o valor diário](docs/celular.webp)
+
+</details>
+
 A página segue o layout original do projeto: topo, busca, dicas. Nada de tabela aberta logo de
 cara: os dados aparecem quando a pessoa pesquisa um alimento ou prato.
 
