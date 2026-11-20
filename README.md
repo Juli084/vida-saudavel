@@ -5,12 +5,12 @@ brasileiros. React 19, TypeScript, Tailwind e Vite.
 
 **No ar:** [vida-saudavel-tau.vercel.app](https://vida-saudavel-tau.vercel.app)
 
-![Pesquisa por "frango" no computador: a composição de cada corte pela tabela TACO, com energia, proteínas, carboidratos, gorduras, fibras e sódio](docs/tela.webp)
+![Pesquisa por "frango" no computador: as abas Alimentos e Receitas, com as receitas brasileiras do Ministério da Saúde, cada uma com foto, região, tipo e calorias por porção](docs/tela.webp)
 
 <details>
 <summary>No celular</summary>
 
-![No celular: o topo da página, a composição do frango, as receitas com frango e a ficha com a porção de 150 g e o valor diário](docs/celular.webp)
+![No celular: o topo da página, a aba Alimentos com a composição do frango, a aba Receitas e a ficha do Frango com ora-pro-nóbis, com rendimento, porção e ingredientes em medida caseira](docs/celular.webp)
 
 </details>
 
@@ -19,8 +19,9 @@ cara: os dados aparecem quando a pessoa pesquisa um alimento ou prato.
 
 - **Composição:** os alimentos com o nome pesquisado, entre os 597 da Tabela Brasileira de
   Composição de Alimentos (TACO, NEPA/UNICAMP).
-- **Receitas:** com uma chave do Spoonacular, receitas do mesmo termo, plano da semana e lista
-  de compras.
+- **Receitas brasileiras:** 111 receitas do livro *Alimentos Regionais Brasileiros*, do
+  Ministério da Saúde, das cinco regiões, com foto, medida caseira e informação nutricional.
+- **Semana e lista de compras:** as receitas vão para a semana, e a lista soma os ingredientes.
 - **Sugestões:** um toque em "mais fibra", "mais ferro" etc. lista os alimentos com mais (ou
   menos) daquele nutriente.
 - **Meu prato:** o total do prato montado, com o valor diário da Anvisa.
@@ -34,8 +35,9 @@ cara: os dados aparecem quando a pessoa pesquisa um alimento ou prato.
   - Cada alimento aparece num cartão com energia, proteínas, carboidratos, gorduras, fibras e
     sódio em 100 g.
   - A comida do dia a dia vem primeiro: o cozido antes do cru, e a fruta antes do doce de fruta.
-  - A mesma pesquisa traz as receitas, com filtros de dieta, glúten, lactose, tempo e tipo de
-    refeição.
+  - O resultado vem em duas abas, uma de cada vez: **Alimentos** e **Receitas**, com a contagem
+    de cada uma. Se o termo é um prato sem alimento com esse nome ("moqueca"), abre direto em
+    Receitas.
 - **Ficha do alimento.** Porção de 50, 100, 150 ou 200 g, ou qualquer valor até 2 kg. Mostra
   energia, macronutrientes, fibra, sódio, colesterol, minerais e vitaminas, cada um com o %VD da
   Anvisa (IN nº 75/2020) e uma barra.
@@ -50,9 +52,22 @@ cara: os dados aparecem quando a pessoa pesquisa um alimento ou prato.
   as gramas podem ser trocadas depois. O total vem com %VD e pode ser copiado. O prato fica no
   navegador, conferido ao ler. Se algum alimento não tem um nutriente na tabela, o total avisa
   que é parcial em vez de contar zero.
-- **Receitas, semana e lista de compras.** Funcionam quando a chave do Spoonacular está
-  configurada no servidor (detalhes abaixo). Sem a chave, a pesquisa mostra só a composição e
-  avisa que as receitas não estão disponíveis. A semana aparece quando a primeira receita entra.
+- **Receitas brasileiras.** As 111 fichas técnicas de *Alimentos Regionais Brasileiros*
+  (Ministério da Saúde, 2015), testadas no laboratório de técnica dietética da UnB. A origem, a
+  licença e a extração estão em [`docs/receitas.md`](docs/receitas.md).
+  - **Busca:** pelo nome e pelos ingredientes ("frango" acha o "Frango no tucupi" e a "Galinhada
+    com pequi"). Sem receita com todas as palavras, mostra as parecidas: "bolo de milho" mostra
+    os bolos.
+  - **Ficha:** foto do livro, ingredientes com medida caseira e peso bruto, modo de preparo por
+    etapas, rendimento, porção e informação nutricional por porção, com o %VD da Anvisa.
+  - **Sem serviço externo:** as receitas vão junto com o site, sem chave nem limite de consultas.
+- **Receitas internacionais.** Com a chave do Spoonacular no servidor (detalhes abaixo), um botão
+  no fim da aba de receitas mostra também receitas de outros países, em inglês, das de melhor nota
+  de saúde para as de pior. O Spoonacular só é consultado quando a pessoa pede.
+- **Semana e lista de compras.** Qualquer receita, brasileira ou internacional, pode ir para um
+  dia e refeição da semana. A lista de compras soma o mesmo ingrediente na mesma unidade. As
+  brasileiras usam o peso bruto do livro, e as internacionais são buscadas de novo no Spoonacular.
+  A semana aparece quando a primeira receita entra.
 - **Dicas.** Os dez passos do
   [Guia Alimentar para a População Brasileira](https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_populacao_brasileira_2ed.pdf)
   (Ministério da Saúde, 2014), três de cada vez, com os títulos do guia e resumos meus.
@@ -68,6 +83,16 @@ A extração da TACO, a conferência e os valores diários de referência estão
 
 A tabela (200 KB, cerca de 30 KB comprimida) é baixada à parte, depois da página. Ela vai junto
 com o site, sem depender de serviço externo nem de chave.
+
+As receitas brasileiras têm o mesmo tratamento, em [`docs/receitas.md`](docs/receitas.md):
+
+- o livro de origem, com o SHA-256 e a licença;
+- os scripts de extração, em `scripts/receitas-ms/`;
+- as leituras que pediram decisão, como o sódio impresso em "g";
+- as conferências contra o livro.
+
+Os dados e as fotos dessas receitas (`src/receitas/ministerio.json` e `public/receitas/`)
+seguem a licença do livro, CC BY-NC-SA 4.0.
 
 ## Receitas: termos do Spoonacular
 
@@ -123,8 +148,11 @@ npm run build
   receita com o tempo, e é por isso que as sugestões deixam os industrializados de fora.
 - **Não é orientação nutricional.** O %VD usa a referência de rótulo da Anvisa (2.000 kcal), não
   a necessidade de cada pessoa.
-- **Receitas em inglês.** Com a chave configurada, o modo de preparo vem em inglês, como está na
-  fonte.
+- **São 111 receitas brasileiras.** É o que o livro do Ministério traz. Pratos fora dele, como
+  "bolo de milho", aparecem como parecidos, não como receita exata. A base pode crescer com
+  outras publicações de licença aberta, sempre com a licença conferida antes.
+- **Receitas internacionais em inglês.** O modo de preparo vem como está na fonte.
 - **O prato e o plano ficam só no navegador** onde foram feitos.
-- **Uso comercial das receitas.** O Spoonacular em produção depende de um plano pago compatível
-  com o volume de acessos. A parte de alimentos não tem essa restrição.
+- **Uso comercial das receitas.** As receitas brasileiras são CC BY-NC-SA 4.0, sem uso
+  comercial. O Spoonacular em produção depende de um plano pago compatível com o volume de
+  acessos. A parte de alimentos não tem essas restrições.
