@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Leitor do PDF</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+<script>
+// Página usada só pelo scripts/receitas-ms/ler.cjs: abre o PDF com o pdf.js e devolve o texto
+// com posições e as fotos das receitas.
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+let doc = null;
+
+window.abrir = async (url) => {
+  doc = await pdfjsLib.getDocument(url).promise;
+  return doc.numPages;
+};
+
+// Texto da página com posição: x e y a partir do canto de cima, em pontos.
+window.texto = async (n) => {
+  const pagina = await doc.getPage(n);
+  const vp = pagina.getViewport({ scale: 1 });
+  const conteudo = await pagina.getTextContent();
+  return {
+    largura: vp.width,
+    altura: vp.height,
+    itens: conteudo.items
+      .filter((i) => i.str !== undefined)
+      .map((i) => ({
+        s: i.str,
+        x: +i.transform[4].toFixed(1),
+        y: +(vp.height - i.transform[5]).toFixed(1),
+        w: +i.width.toFixed(1),
+        t: +Math.hypot(i.transform[2], i.transform[3]).toFixed(1),
+        f: i.fontName,
+      })),
+  };
+};
+
+// Foto da receita: a página inteira é a foto, com o título no alto. Corta o alto (onde fica o
+// título) e preenche largura x altura sem distorcer. Devolve WebP.
+window.foto = async (n, largura, altura, cortarTopo, qualidade) => {
+  const pagina = await doc.getPage(n);
+  const escala = (largura * 2) / pagina.getViewport({ scale: 1 }).width;
+  const vp = pagina.getViewport({ scale: escala });
+  const tela = document.createElement('canvas');
+  tela.width = vp.width;
+  tela.height = vp.height;
+  await pagina.render({ canvasContext: tela.getContext('2d'), viewport: vp }).promise;
+  const topo = vp.height * cortarTopo;
+  const util = { w: vp.width, h: vp.height - topo };
+  const proporcao = largura / altura;
+  const recorte = util.w / util.h > proporcao ? { w: util.h * proporcao, h: util.h } : { w: util.w, h: util.w / proporcao };
+  const sx = (util.w - recorte.w) / 2;
+  const sy = topo + (util.h - recorte.h) / 2;
+  const saida = document.createElement('canvas');
+  saida.width = largura;
+  saida.height = altura;
+  const ctx = saida.getContext('2d');
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(tela, sx, sy, recorte.w, recorte.h, 0, 0, largura, altura);
+  return saida.toDataURL('image/webp', qualidade);
+};
+</script>
+</body>
+</html>
